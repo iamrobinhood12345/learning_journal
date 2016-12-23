@@ -4,6 +4,7 @@ README.txt
 development.ini
 production.ini
 pytest.ini
+pyvenv.cfg
 learning_journal/__init__.py
 learning_journal/routes.py
 learning_journal.egg-info/PKG-INFO
@@ -24,7 +25,11 @@ learning_journal/static/theme.css
 learning_journal/templates/404.jinja2
 learning_journal/templates/form.jinja2
 learning_journal/templates/layout.jinja2
+learning_journal/templates/list.jinja2
 learning_journal/templates/mytemplate.jinja2
+learning_journal/templates/new_post_template.jinja2
+learning_journal/templates/post_template.jinja2
+learning_journal/templates/update_template.jinja2
 learning_journal/views/__init__.py
 learning_journal/views/default.py
 learning_journal/views/notfound.py
