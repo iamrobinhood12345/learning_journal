@@ -19,7 +19,7 @@ def index_page(request):
         entries = query.all()
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
-    return {'ENTRIES': entries}
+    return {"ENTRIES": entries}
 
 
 @view_config(route_name='detail', renderer='../templates/post_template.jinja2')
@@ -32,10 +32,9 @@ def post_page(request):
     return {"entry": entry}
 
 
-# @view_config(route_name='about', renderer='string')
-# def about_page(request):
-#     imported_text = open(os.path.join(HERE, 'static', 'ben-files', 'about.html')).read()
-#     return Response(imported_text)
+@view_config(route_name='about', renderer='../templates/about_template.jinja2')
+def about_page(request):
+    return {}
 
 
 @view_config(route_name='update', renderer='../templates/update_template.jinja2')
@@ -43,13 +42,13 @@ def update_page(request):
     the_id = request.matchdict["id"]
     try:
         entry = request.dbsession.query(MyModel).get(the_id)
-        if request.method == 'POST':
-            entry.title = request.POST['title']
-            entry.title1 = request.POST['title1']
-            entry.creation_date = request.POST['creation_date']
-            entry.body = request.POST['body']
+        if request.method == "POST":
+            entry.title = request.POST["title"]
+            entry.title1 = request.POST["title1"]
+            entry.creation_date = request.POST["creation_date"]
+            entry.body = request.POST["body"]
             request.dbsession.flush()
-            return HTTPFound(request.route_url('list'))
+            return HTTPFound(request.route_url("list"))
 
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
@@ -58,16 +57,16 @@ def update_page(request):
 
 @view_config(route_name='create', renderer='../templates/new_post_template.jinja2')
 def new_post_page(request):
-    if request.method == 'POST':
-        new_title = request.POST['title']
-        new_title1 = request.POST['title1']
-        new_creation_date = request.POST['creation_date']
-        new_body = request.POST['body']
+    if request.method == "POST":
+        new_title = request.POST["title"]
+        new_title1 = request.POST["title1"]
+        new_creation_date = request.POST["creation_date"]
+        new_body = request.POST["body"]
 
         model = MyModel(title=new_title, title1=new_title1, creation_date=new_creation_date, body=new_body)
         request.dbsession.add(model)
 
-        return HTTPFound(request.route_url('list'))
+        return HTTPFound(request.route_url("list"))
     return {}
 
 

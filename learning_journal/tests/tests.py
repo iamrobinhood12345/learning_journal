@@ -8,10 +8,15 @@ from pyramid import testing
 
 from learning_journal.models import MyModel, get_tm_session
 from learning_journal.models.meta import Base
-from learning_journal.scripts.initializedb import ENTRIES
+# from learning_journal.scripts.initializedb import ENTRIES
 
-# import random
-# import datetime
+
+TEST_ENTRIES = [
+    {"title": "Learning Journal - Day 12", "title1": "Slowly Getting Better", "creation_date": "Dec 20, 2016", "body": "<p>Today was a good day. I started off asking questions right away and was more attentive than I am most days. This felt really good. I'm going to try to ask as many questions as I can. I'm also going to volunteer for code review tomorrow. Today we also formed our groups for project week. Looks like Pysearch is happening after all! I have a good group going, with Marc, Casey, and Sera. This should be a lot of fun. My thoughts are that we should start small, and get a working implementation of a search engine going quickly, and design it in such a way that we can add features easily. Will said something about a simple search engine tutorial on Udacity. I will definitely ask him about this. The number one take away today would be that I should participate as much as I can, even if I don't feel like it, especially in the mornings. Another thing I realized is that a lot of computer science is actually getting good with getting a bunch of different things to work together -- different files, file systems, frameworks, functions that must speak to each other, having an account with the service you are using, and really taking all of these sort of things one step at a time. Overall, I can't wait to start working on Pysearch!</p>"},
+    {"title": "Learning Journal - Day 11", "title1": "Pitches and Tools", "creation_date": "Dec 19, 2016", "body": "<p>Today I learned a good deal about my classmates. Each of us took turns pitching ideas for project week projects. I was very impressed with the creativity of my classmates. Several of their ideas seem like very good ones. I wish I could help out with all of them. Alas, decisions must be made, and we will eventually come to each work on one of a handful of projects. Such is life. We must choose decisively, and live with our choices for the rest of our days.</p><p>Avery and Patrick had awesome presentations. I learned about Itertools from Patrick, and can't wait for the chance to practice. Avery presented on an enhancement for Visual Studio that allows you to see documentation for functions as you are writing them. How cool is that!</p>"},
+    {"title": "DNA Transcription", "title1": "ATGCATGCATGCATGCATGCATGC", "creation_date": "Dec 20, 2016", "body": "I learned some stuff about some other stuff."},
+    {"title": "Itertools", "title1": "New stuff learned", "creation_date": "Dec 20, 2016", "body": "I learned some stuff about some other stuff."},
+]
 
 
 @pytest.fixture(scope="session")
@@ -66,34 +71,34 @@ def dummy_request(db_session):
 @pytest.fixture
 def add_models(dummy_request):
     """Add a bunch of model instances to the database.
-    Every test that includes this fixture will add new random expenses.
+    Every test that includes this fixture will add new models
+     from the ENTRIES list.
     """
-    for each in ENTRIES:
+    for each in TEST_ENTRIES:
         model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
         dummy_request.dbsession.add(model)
 
 
 # ======== UNIT TESTS ==========
 
-def test_new_expenses_are_added(db_session):
-    """New expenses get added to the database."""
-    db_session.add_all(ENTRIES)
+def test_new_models_are_added(db_session, add_models):
+    """New entries get added to the database."""
     query = db_session.query(MyModel).all()
-    assert len(query) == len(ENTRIES)
+    assert len(query) == len(TEST_ENTRIES)
 
 
-def test_list_view_returns_empty_when_empty(dummy_request):
+def test_index_page_returns_empty_when_empty(dummy_request):
     """Test that the list view returns no objects in the expenses iterable."""
-    from .views.default import list_view
-    result = list_view(dummy_request)
-    assert len(result["expenses"]) == 0
+    from learning_journal.views.default import index_page
+    result = index_page(dummy_request)
+    assert len(result["ENTRIES"]) == 0
 
 
-def test_list_view_returns_objects_when_exist(dummy_request, add_models):
+def test_index_page_returns_objects_when_exist(dummy_request, add_models):
     """Test that the list view does return objects when the DB is populated."""
-    from .views.default import list_view
-    result = list_view(dummy_request)
-    assert len(result["expenses"]) == 100
+    from learning_journal.views.default import index_page
+    result = index_page(dummy_request)
+    assert len(result["ENTRIES"]) == len(TEST_ENTRIES)
 
 # ======== FUNCTIONAL TESTS ===========
 
@@ -126,37 +131,29 @@ def testapp():
 def fill_the_db(testapp):
     """Fill the database with some model instances.
     Start a database session with the transaction manager and add all of the
-    expenses. This will be done anew for every test.
+    entries. This will be done anew for every test.
     """
     SessionFactory = testapp.app.registry["dbsession_factory"]
     with transaction.manager:
         dbsession = get_tm_session(SessionFactory, transaction.manager)
 
-        for each in ENTRIES:
+        for each in TEST_ENTRIES:
             model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
             dbsession.add(model)
 
 
-def test_home_route_has_table(testapp):
-    """The home page has a table in the html."""
+def test_index_page_renders(testapp):
+    """The home page has an h1 in the html."""
     response = testapp.get('/', status=200)
     html = response.html
-    assert len(html.find_all("table")) == 1
+    assert len(html.find_all("h1")) == 1
 
 
 def test_home_route_with_data_has_filled_table(testapp, fill_the_db):
     """When there's data in the database, the home page has some rows."""
     response = testapp.get('/', status=200)
     html = response.html
-    assert len(html.find_all("tr")) == 101
-
-
-def test_home_route_has_table2(testapp):
-    """Without data the home page only has the header row in its table."""
-    response = testapp.get('/', status=200)
-    html = response.html
-    assert len(html.find_all("tr")) == 1
-
+    assert len(html.find_all("h2")) == len(TEST_ENTRIES)
 
 
 # import pytest

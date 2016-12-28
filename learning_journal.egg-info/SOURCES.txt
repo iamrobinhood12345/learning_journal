@@ -24,6 +24,7 @@ learning_journal/static/pyramid-16x16.png
 learning_journal/static/pyramid.png
 learning_journal/static/theme.css
 learning_journal/templates/404.jinja2
+learning_journal/templates/about_template.jinja2
 learning_journal/templates/form.jinja2
 learning_journal/templates/layout.jinja2
 learning_journal/templates/list.jinja2
