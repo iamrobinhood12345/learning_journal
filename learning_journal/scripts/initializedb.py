@@ -52,10 +52,4 @@ def main(argv=sys.argv):
         for each in ENTRIES:
             model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
             dbsession.add(model)
-
-        # each1 = ENTRIES[0]
-        # each2 = ENTRIES[1]
-        # model1 = MyModel(title=each1["title"], title1=each1["title1"], creation_date=each1["creation_date"], body=each1["body"])
-        # dbsession.add(model1)
-        # model2 = MyModel(title=each2["title"], title1=each2["title1"], creation_date=each2["creation_date"], body=each2["body"])
-        # dbsession.add(model2)
+        # dbsession.add_all(ENTRIES)

@@ -8,9 +8,10 @@ from pyramid import testing
 
 from learning_journal.models import MyModel, get_tm_session
 from learning_journal.models.meta import Base
+from learning_journal.scripts.initializedb import ENTRIES
 
-import random
-import datetime
+# import random
+# import datetime
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +26,7 @@ def configuration(request):
     settings = {
         'sqlalchemy.url': 'sqlite:///:memory:'}  # points to an in-memory database.
     config = testing.setUp(settings=settings)
-    config.include('.models')
+    config.include('learning_journal.models')
 
     def teardown():
         testing.tearDown()
@@ -67,7 +68,9 @@ def add_models(dummy_request):
     """Add a bunch of model instances to the database.
     Every test that includes this fixture will add new random expenses.
     """
-    dummy_request.dbsession.add_all(ENTRIES)
+    for each in ENTRIES:
+        model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
+        dummy_request.dbsession.add(model)
 
 
 # ======== UNIT TESTS ==========
@@ -128,7 +131,10 @@ def fill_the_db(testapp):
     SessionFactory = testapp.app.registry["dbsession_factory"]
     with transaction.manager:
         dbsession = get_tm_session(SessionFactory, transaction.manager)
-        dbsession.add_all(ENTRIES)
+
+        for each in ENTRIES:
+            model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
+            dbsession.add(model)
 
 
 def test_home_route_has_table(testapp):
