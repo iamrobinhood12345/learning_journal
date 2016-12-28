@@ -259,6 +259,14 @@ def test_about_page_renders(testapp):
     assert len(html.find_all("h1")) == 1
 
 
+def test_about_page_content(testapp):
+    """Test new post page has something specific to the page."""
+    response = testapp.get('/about', status=200)
+    html = response.html
+    print(str(html))
+    assert "About Me" in str(html)
+
+
 # import pytest
 # import transaction
 
