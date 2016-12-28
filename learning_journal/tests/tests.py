@@ -1,4 +1,4 @@
-"""A short testing suite for the expense tracker."""
+"""Testing suite for Learning Journal."""
 
 
 import pytest
@@ -8,7 +8,6 @@ from pyramid import testing
 
 from learning_journal.models import MyModel, get_tm_session
 from learning_journal.models.meta import Base
-# from learning_journal.scripts.initializedb import ENTRIES
 
 
 TEST_ENTRIES = [
@@ -204,11 +203,53 @@ def test_index_page_renders(testapp):
     assert len(html.find_all("h1")) == 1
 
 
-def test_home_route_with_data_has_filled_table(testapp, fill_the_db):
-    """When there's data in the database, the home page has some rows."""
+def test_index_page_with_data_has_entries(testapp, fill_the_db):
+    """When there's data in the database, the index page has entries."""
     response = testapp.get('/', status=200)
     html = response.html
     assert len(html.find_all("h2")) == len(TEST_ENTRIES)
+
+
+def test_post_page_renders(testapp):
+    """The post page has an h1 in the html."""
+    response = testapp.get('/journal/1', status=200)
+    html = response.html
+    assert len(html.find_all("h1")) == 1
+
+
+def test_post_page_with_data_has_correct_entry(testapp, fill_the_db):
+    """When there's data in the database,the post page has an entry."""
+    response = testapp.get('/journal/1', status=200)
+    html = response.html
+    assert TEST_ENTRIES[0]["title"] in str(html)
+
+
+def test_update_page_renders(testapp):
+    """The post page has an h1 in the html."""
+    response = testapp.get('/journal/2/edit-entry', status=200)
+    html = response.html
+    assert len(html.find_all("h1")) == 1
+
+
+def test_update_page_with_data_has_correct_entry(testapp, fill_the_db):
+    """When there's data in the database,the post page has an entry."""
+    response = testapp.get('/journal/2', status=200)
+    html = response.html
+    assert TEST_ENTRIES[1]["title"] in str(html)
+
+
+def test_new_post_page_renders(testapp):
+    """The new post page has an h1 in the html."""
+    response = testapp.get('/journal/new-entry', status=200)
+    html = response.html
+    assert len(html.find_all("h1")) == 1
+
+
+def test_about_page_renders(testapp):
+    """The about page has an h1 in the html."""
+    response = testapp.get('/about', status=200)
+    html = response.html
+    assert len(html.find_all("h1")) == 1
 
 
 # import pytest
