@@ -245,6 +245,13 @@ def test_new_post_page_renders(testapp):
     assert len(html.find_all("h1")) == 1
 
 
+def test_new_post_page_content(testapp):
+    """Test new post page has something specific to the page."""
+    response = testapp.get('/journal/new-entry', status=200)
+    html = response.html
+    assert "Write a new post here!" in str(html)
+
+
 def test_about_page_renders(testapp):
     """The about page has an h1 in the html."""
     response = testapp.get('/about', status=200)
