@@ -48,7 +48,7 @@ def update_page(request):
             entry.creation_date = request.POST["creation_date"]
             entry.body = request.POST["body"]
             request.dbsession.flush()
-            return HTTPFound(request.route_url("list"))
+            return HTTPFound(request.route_url("update"))
 
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
@@ -66,9 +66,8 @@ def new_post_page(request):
         model = MyModel(title=new_title, title1=new_title1, creation_date=new_creation_date, body=new_body)
         request.dbsession.add(model)
 
-        return HTTPFound(request.route_url("list"))
+        # return HTTPFound(request.route_url("create"))
     return {}
-
 
 
 db_err_msg = """\
