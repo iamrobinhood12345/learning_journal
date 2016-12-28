@@ -1,3 +1,212 @@
+"""A short testing suite for the expense tracker."""
+
+
+import pytest
+import transaction
+
+from pyramid import testing
+
+from learning_journal.models import MyModel, get_tm_session
+from learning_journal.models.meta import Base
+
+import random
+import datetime
+
+
+@pytest.fixture(scope="session")
+def configuration(request):
+    """Set up a Configurator instance.
+    This Configurator instance sets up a pointer to the location of the
+        database.
+    It also includes the models from your app's model package.
+    Finally it tears everything down, including the in-memory SQLite database.
+    This configuration will persist for the entire duration of your PyTest run.
+    """
+    settings = {
+        'sqlalchemy.url': 'sqlite:///:memory:'}  # points to an in-memory database.
+    config = testing.setUp(settings=settings)
+    config.include('.models')
+
+    def teardown():
+        testing.tearDown()
+
+    request.addfinalizer(teardown)
+    return config
+
+
+@pytest.fixture()
+def db_session(configuration, request):
+    """Create a session for interacting with the test database.
+    This uses the dbsession_factory on the configurator instance to create a
+    new database session. It binds that session to the available engine
+    and returns a new session for every call of the dummy_request object.
+    """
+    SessionFactory = configuration.registry['dbsession_factory']
+    session = SessionFactory()
+    engine = session.bind
+    Base.metadata.create_all(engine)
+
+    def teardown():
+        session.transaction.rollback()
+
+    request.addfinalizer(teardown)
+    return session
+
+
+@pytest.fixture
+def dummy_request(db_session):
+    """Instantiate a fake HTTP Request, complete with a database session.
+    This is a function-level fixture, so every new request will have a
+    new database session.
+    """
+    return testing.DummyRequest(dbsession=db_session)
+
+
+@pytest.fixture
+def add_models(dummy_request):
+    """Add a bunch of model instances to the database.
+    Every test that includes this fixture will add new random expenses.
+    """
+    dummy_request.dbsession.add_all(ENTRIES)
+
+
+# ======== UNIT TESTS ==========
+
+def test_new_expenses_are_added(db_session):
+    """New expenses get added to the database."""
+    db_session.add_all(ENTRIES)
+    query = db_session.query(MyModel).all()
+    assert len(query) == len(ENTRIES)
+
+
+def test_list_view_returns_empty_when_empty(dummy_request):
+    """Test that the list view returns no objects in the expenses iterable."""
+    from .views.default import list_view
+    result = list_view(dummy_request)
+    assert len(result["expenses"]) == 0
+
+
+def test_list_view_returns_objects_when_exist(dummy_request, add_models):
+    """Test that the list view does return objects when the DB is populated."""
+    from .views.default import list_view
+    result = list_view(dummy_request)
+    assert len(result["expenses"]) == 100
+
+# ======== FUNCTIONAL TESTS ===========
+
+
+@pytest.fixture
+def testapp():
+    """Create an instance of webtests TestApp for testing routes.
+    With the alchemy scaffold we need to add to our test application the
+    setting for a database to be used for the models.
+    We have to then set up the database by starting a database session.
+    Finally we have to create all of the necessary tables that our app
+    normally uses to function.
+    The scope of the fixture is function-level, so every test will get a new
+    test application.
+    """
+    from webtest import TestApp
+    from learning_journal import main
+
+    app = main({}, **{"sqlalchemy.url": 'sqlite:///:memory:'})
+    testapp = TestApp(app)
+
+    SessionFactory = app.registry["dbsession_factory"]
+    engine = SessionFactory().bind
+    Base.metadata.create_all(bind=engine)
+
+    return testapp
+
+
+@pytest.fixture
+def fill_the_db(testapp):
+    """Fill the database with some model instances.
+    Start a database session with the transaction manager and add all of the
+    expenses. This will be done anew for every test.
+    """
+    SessionFactory = testapp.app.registry["dbsession_factory"]
+    with transaction.manager:
+        dbsession = get_tm_session(SessionFactory, transaction.manager)
+        dbsession.add_all(ENTRIES)
+
+
+def test_home_route_has_table(testapp):
+    """The home page has a table in the html."""
+    response = testapp.get('/', status=200)
+    html = response.html
+    assert len(html.find_all("table")) == 1
+
+
+def test_home_route_with_data_has_filled_table(testapp, fill_the_db):
+    """When there's data in the database, the home page has some rows."""
+    response = testapp.get('/', status=200)
+    html = response.html
+    assert len(html.find_all("tr")) == 101
+
+
+def test_home_route_has_table2(testapp):
+    """Without data the home page only has the header row in its table."""
+    response = testapp.get('/', status=200)
+    html = response.html
+    assert len(html.find_all("tr")) == 1
+
+
+
+# import pytest
+# import transaction
+
+# from pyramid import testing
+
+# from learning_journal.models import (
+#     MyModel,
+#     get_tm_session,
+# )
+# from learning_journal.models.meta import Base
+
+
+# @pytest.fixture(scope="session")
+# def configuration(request):
+#     """Set up a Configurator instance.
+
+#     This Configurator instance sets up a pointer to the location of the
+#         database.
+#     It also includes the models from your app's model package.
+#     Finally it tears everything down, including the in-memory SQLite database.
+
+#     This configuration will persist for the entire duration of your PyTest run.
+#     """
+#     config = testing.setUp(settings={
+#         'sqlalchemy.url': 'sqlite:///:memory:'
+#     })
+#     config.include("..models")
+
+#     def teardown():
+#         testing.tearDown()
+
+#     request.addfinalizer(teardown)
+#     return config
+
+
+# @pytest.fixture(scope="function")
+# def db_session(configuration, request):
+#     """Create a session for interacting with the test database.
+
+#     This uses the dbsession_factory on the configurator instance to create a
+#     new database session. It binds that session to the available engine
+#     and returns a new session for every call of the dummy_request object.
+#     """
+#     SessionFactory = configuration.registry["dbsession_factory"]
+#     session = SessionFactory()
+#     engine = session.bind
+#     Base.metadata.create_all(engine)
+
+#     def teardown():
+#         session.transaction.rollback()
+
+#     request.addfinalizer(teardown)
+#     return session
+
 # import unittest
 # import transaction
 # import pytest
@@ -78,3 +287,90 @@
 #         info = my_view(dummy_request(self.session))
 #         self.assertEqual(info.status_int, 500)
 
+# import pytest
+# from pyramid import testing
+
+
+# @pytest.fixture
+# def req():
+#     the_request = testing.DummyRequest()
+#     return the_request
+
+
+# def test_home_page_renders_file_data(req):
+#     """My home page view returns some data."""
+#     from .views import index_page
+#     response = index_page(req)
+#     some_html = "<p>Today I"
+#     assert some_html in str(response)
+
+
+# def test_post_view():
+#     from .views import post_page
+#     req.matchdict = {'id': '11'}
+#     info = post_page(req)
+#     assert "title" in str(info)
+
+
+# def test_update_view():
+#     from .views import update_page
+#     req.matchdict = {'id': '11'}
+#     info = update_page(req)
+#     assert "title" in str(info)
+
+
+# def test_new_post_view():
+#     from .views import new_post_page
+#     info = new_post_page(req)
+#     assert "title" in str(info)
+
+
+# def test_about_view():
+#     from .views import about_page
+#     info = about_page(req)
+#     assert "title" in str(info)
+
+
+# @pytest.fixture()
+# def testapp():
+#     """Create an instance of our app for testing."""
+#     from learning_journal_basic import main
+#     app = main({})
+#     from webtest import TestApp
+#     return TestApp(app)
+
+
+# def test_layout_list(testapp):
+#     """Test that the contents of the list page contains something specific to this website."""
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert 'Ben Shields' in str(html)
+
+
+# def test_list_contents(testapp):
+#     """Test that the contents of the list page contains as many <h2> tags as journal entries."""
+#     from .views import ENTRIES
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert len(ENTRIES) == len(html.findAll('h2'))
+
+
+# def test_layout_post(testapp):
+#     """Test that the contents of the post page contains something specific to this website."""
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert 'Ben Shields' in str(html)
+
+
+# def test_layout_update(testapp):
+#     """Test that the contents of the update page contains something specific to this website."""
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert 'Ben Shields' in str(html)
+
+
+# def test_layout_new_post(testapp):
+#     """Test that the contents of the new post page contains something specific to this website."""
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert 'Ben Shields' in str(html)

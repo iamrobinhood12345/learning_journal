@@ -5,6 +5,7 @@ development.ini
 production.ini
 pytest.ini
 pyvenv.cfg
+setup.py
 learning_journal/__init__.py
 learning_journal/routes.py
 learning_journal.egg-info/PKG-INFO
