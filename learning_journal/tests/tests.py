@@ -128,12 +128,31 @@ def test_post_page_returns_correct_object_when_exist(dummy_request, add_models):
     assert result["entry"].title == TEST_ENTRIES[0]["title"]
 
 
-# def test_update_page_returns_empty_when_empty(dummy_request):
-#     """Test that the new post view returns no objects when database empty."""
-#     from learning_journal.views.default import update_page
-#     req = dummy_request
-#     req.matchdict = {"id": "2"}
-#     result = update_page(req)
+def test_update_page_returns_empty_when_empty(dummy_request):
+    """Test that the update view returns no objects when database empty."""
+    from learning_journal.views.default import update_page
+    req = dummy_request
+    req.matchdict = {"id": "2"}
+    result = update_page(req)
+    assert result["entry"] is None
+
+
+def test_update_page_returns_correct_number_of_objects_when_exist(dummy_request, add_models):
+    """Test that the update view does return objects when the DB is populated."""
+    from learning_journal.views.default import update_page
+    req = dummy_request
+    req.matchdict = {"id": "2"}
+    result = update_page(req)
+    assert len(result) == 1
+
+
+def test_update_page_returns_correct_objects_when_exist(dummy_request, add_models):
+    """Test that the update view does return objects when the DB is populated."""
+    from learning_journal.views.default import update_page
+    req = dummy_request
+    req.matchdict = {"id": "2"}
+    result = update_page(req)
+    assert result["entry"].title == TEST_ENTRIES[1]["title"]
 
 
 # ======== FUNCTIONAL TESTS ===========
