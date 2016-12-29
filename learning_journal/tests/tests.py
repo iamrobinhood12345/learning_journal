@@ -156,7 +156,29 @@ def test_update_page_returns_correct_objects_when_exist(dummy_request, add_model
     assert result["entry"].title == TEST_ENTRIES[1]["title"]
 
 
-def test_new_post_page(dummy_request, add_models):
+def test_update_page_edits_db_entry(dummy_request, add_models):
+    """Test that the update view edits entries in the database."""
+    from learning_journal.views.default import update_page
+    req = dummy_request
+    req.matchdict = {"id": "3"}
+    req.method = "POST"
+    req.POST["title"] = "a new post"
+    req.POST["title1"] = "a new subtitle"
+    req.POST["creation_date"] = "a new creation date"
+    req.POST["body"] = "a new body"
+    try:
+        update_page(req)
+    except:
+        for title, body in dummy_request.dbsession.query(MyModel.title, MyModel.body):
+            print(title, body)
+            print(type(title))
+        new_title = dummy_request.dbsession.query(MyModel).get(3).title
+        print(new_title.title)
+        print(type(new_title))
+        assert new_title == "a new post"
+
+
+def test_new_post_page_adds_db_entry(dummy_request, add_models):
     """Test that the new post view adds entries to the database."""
     from learning_journal.views.default import new_post_page
     row_count_before_post = dummy_request.dbsession.query(MyModel).count()
@@ -166,21 +188,11 @@ def test_new_post_page(dummy_request, add_models):
     req.POST["title1"] = "a new subtitle"
     req.POST["creation_date"] = "a new creation date"
     req.POST["body"] = "a new body"
-    result = new_post_page(req)
-    # print(req)
-    # print(dir(req.POST))
-    # print(req.POST)
-    # print(dir(dummy_request))
-    # print(dummy_request.dbsession)
-    # print(dummy_request.dbsession.query.all())
-    # for title in dummy_request.dbsession.query(MyModel.title):
-    #     print(title)
-    row_count_after_post = dummy_request.dbsession.query(MyModel).count()
-    print(row_count_before_post)
-    print(row_count_after_post)
-    print(dummy_request.dbsession.query(MyModel))
-    print(dummy_request.dbsession.query(MyModel).count())
-    assert row_count_after_post == row_count_before_post + 1
+    try:
+        new_post_page(req)
+    except:
+        row_count_after_post = dummy_request.dbsession.query(MyModel).count()
+        assert row_count_after_post == row_count_before_post + 1
 
 
 # ======== FUNCTIONAL TESTS ===========
