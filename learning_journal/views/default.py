@@ -5,23 +5,71 @@ from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
 
+import os
 
-@view_config(route_name='home', renderer='../templates/mytemplate.jinja2')
-def my_view(request):
+from pyramid.httpexceptions import HTTPFound
+
+HERE = os.path.dirname(__file__)
+
+
+@view_config(route_name='list', renderer='../templates/list.jinja2')
+def index_page(request):
     try:
         query = request.dbsession.query(MyModel)
-        one = query.filter(MyModel.name == 'one').first()
+        entries = query.all()
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
-    return {'one': one, 'project': 'learning_journal'}
+    return {"ENTRIES": entries}
 
 
-@view_config(route_name="create", renderer="../templates/form.jinja2")
-def create_view(request):
-    import pdb; pdb.set_trace()
+@view_config(route_name='detail', renderer='../templates/post_template.jinja2')
+def post_page(request):
+    the_id = request.matchdict["id"]
+    try:
+        entry = request.dbsession.query(MyModel).get(the_id)
+    except DBAPIError:
+        return Response(db_err_msg, content_type='text/plain', status=500)
+    return {"entry": entry}
+
+
+@view_config(route_name='about', renderer='../templates/about_template.jinja2')
+def about_page(request):
+    return {}
+
+
+@view_config(route_name='update', renderer='../templates/update_template.jinja2')
+def update_page(request):
+    the_id = request.matchdict["id"]
+    try:
+        entry = request.dbsession.query(MyModel).get(the_id)
+        if request.method == "POST":
+            entry.title = request.POST["title"]
+            entry.title1 = request.POST["title1"]
+            entry.creation_date = request.POST["creation_date"]
+            entry.body = request.POST["body"]
+
+            request.dbsession.flush()
+            return HTTPFound(request.route_url("list"))
+
+    except DBAPIError:
+        return Response(db_err_msg, content_type='text/plain', status=500)
+    return {"entry": entry}
+
+
+@view_config(route_name='create', renderer='../templates/new_post_template.jinja2')
+def new_post_page(request):
     if request.method == "POST":
-        # get the form stuff
-        return {}
+        new_title = request.POST["title"]
+        new_title1 = request.POST["title1"]
+        new_creation_date = request.POST["creation_date"]
+        new_body = request.POST["body"]
+
+        model = MyModel(title=new_title, title1=new_title1, creation_date=new_creation_date, body=new_body)
+        request.dbsession.add(model)
+
+        request.dbsession.flush()
+        return HTTPFound(request.route_url("list"))
+
     return {}
 
 
@@ -29,7 +77,7 @@ db_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem
 might be caused by one of the following things:
 
-1.  You may need to run the "initialize_learning_journal_db" script
+1.  You may need to run the "initialize_db" script
     to initialize your database tables.  Check your virtual
     environment's "bin" directory for this script and try to run it.
 
