@@ -169,12 +169,7 @@ def test_update_page_edits_db_entry(dummy_request, add_models):
     try:
         update_page(req)
     except:
-        for title, body in dummy_request.dbsession.query(MyModel.title, MyModel.body):
-            print(title, body)
-            print(type(title))
         new_title = dummy_request.dbsession.query(MyModel).get(3).title
-        print(new_title.title)
-        print(type(new_title))
         assert new_title == "a new post"
 
 
