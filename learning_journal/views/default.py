@@ -5,12 +5,12 @@ from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
 
-
 from pyramid.httpexceptions import HTTPFound
 
 
 @view_config(route_name='list', renderer='../templates/list.jinja2')
 def index_page(request):
+    """Handles rendering for client request for the index page."""
     try:
         query = request.dbsession.query(MyModel)
         entries = query.all()
@@ -21,6 +21,7 @@ def index_page(request):
 
 @view_config(route_name='detail', renderer='../templates/post_template.jinja2')
 def post_page(request):
+    """Handles rendering for client request for post pages."""
     the_id = request.matchdict["id"]
     try:
         entry = request.dbsession.query(MyModel).get(the_id)
@@ -31,11 +32,13 @@ def post_page(request):
 
 @view_config(route_name='about', renderer='../templates/about_template.jinja2')
 def about_page(request):
+    """Handles rendering for client request for about page."""
     return {}
 
 
 @view_config(route_name='update', renderer='../templates/update_template.jinja2')
 def update_page(request):
+    """Handles rendering for client request for update pages."""
     the_id = request.matchdict["id"]
     try:
         entry = request.dbsession.query(MyModel).get(the_id)
@@ -55,6 +58,7 @@ def update_page(request):
 
 @view_config(route_name='create', renderer='../templates/new_post_template.jinja2')
 def new_post_page(request):
+    """Handles rendering for client request for new post page."""
     if request.method == "POST":
         new_title = request.POST["title"]
         new_title1 = request.POST["title1"]
