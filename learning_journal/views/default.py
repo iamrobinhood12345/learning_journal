@@ -5,11 +5,8 @@ from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
 
-import os
 
 from pyramid.httpexceptions import HTTPFound
-
-HERE = os.path.dirname(__file__)
 
 
 @view_config(route_name='list', renderer='../templates/list.jinja2')
