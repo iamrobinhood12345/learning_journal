@@ -8,6 +8,7 @@ zope.sqlalchemy
 waitress
 ipython
 pyramid_ipython
+psycopg2
 
 [testing]
 WebTest >= 1.3.1

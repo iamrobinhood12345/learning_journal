@@ -299,3 +299,34 @@ def test_about_page_content(testapp):
     html = response.html
     print(str(html))
     assert "About Me" in str(html)
+
+
+def test_new_post_page_redirects(testapp):
+    """Test that a post request on new post page redirects to home."""
+    post_params = {
+        'title': 'Some Title.',
+        'title1': 'Another Title.',
+        'creation_date': 'A creation date',
+        'body': 'Some Body.'
+    }
+    response = testapp.post('/journal/new-entry', post_params, status=302)
+    full_response = response.follow()
+    assert response.text[0:3] == '302'
+    assert len(full_response.html.find_all("h2")) == 1
+
+
+def test_update_page_redirects(testapp, fill_the_db):
+    """Test that a post request on update page redirects to home."""
+    post_params = {
+        'title': 'Some Title.',
+        'title1': 'Another Title.',
+        'creation_date': 'A creation date',
+        'body': 'Some Body.'
+    }
+    response = testapp.post('/journal/2/edit-entry', post_params, status=302)
+    full_response = response.follow()
+    print(str(full_response.html))
+    assert response.text[0:3] == '302'
+    assert 'Some Title.' in str(full_response.html)
+    assert 'Another Title.' in str(full_response.html)
+    assert 'A creation date' in str(full_response.html)
