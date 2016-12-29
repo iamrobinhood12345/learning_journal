@@ -24,7 +24,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-bin
+*.egg-info
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -91,5 +91,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# Miscellaneous
-*.sqlite
+# DB
+.sqlite
