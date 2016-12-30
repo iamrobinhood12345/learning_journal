@@ -5,6 +5,7 @@ development.ini
 production.ini
 pytest.ini
 pyvenv.cfg
+requirements.txt
 setup.py
 learning_journal/__init__.py
 learning_journal/routes.py
