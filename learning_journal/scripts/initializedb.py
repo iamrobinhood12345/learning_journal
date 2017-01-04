@@ -40,6 +40,7 @@ def main(argv=sys.argv):
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
     settings = get_appsettings(config_uri, options=options)
+    settings["sqlalchemy.url"] = os.environ["DATABASE_URL"]
 
     engine = get_engine(settings)
     Base.metadata.create_all(engine)
@@ -48,7 +49,6 @@ def main(argv=sys.argv):
 
     with transaction.manager:
         dbsession = get_tm_session(session_factory, transaction.manager)
-
-        for each in ENTRIES:
-            model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
-            dbsession.add(model)
+    #     for each in ENTRIES:
+    #         model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
+    #         dbsession.add(model)
