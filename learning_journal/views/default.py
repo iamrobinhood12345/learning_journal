@@ -14,7 +14,6 @@ from pyramid.httpexceptions import HTTPFound
 def index_page(request):
     """Handles rendering for client request for the index page."""
     try:
-        import pdb; pdb.set_trace()
         query = request.dbsession.query(MyModel)
         entries = query.all()
     except DBAPIError:
