@@ -9,6 +9,7 @@ requirements.txt
 setup.py
 learning_journal/__init__.py
 learning_journal/routes.py
+learning_journal/security.py
 learning_journal.egg-info/PKG-INFO
 learning_journal.egg-info/SOURCES.txt
 learning_journal.egg-info/dependency_links.txt
@@ -29,6 +30,7 @@ learning_journal/templates/about_template.jinja2
 learning_journal/templates/form.jinja2
 learning_journal/templates/layout.jinja2
 learning_journal/templates/list.jinja2
+learning_journal/templates/login.jinja2
 learning_journal/templates/mytemplate.jinja2
 learning_journal/templates/new_post_template.jinja2
 learning_journal/templates/post_template.jinja2
