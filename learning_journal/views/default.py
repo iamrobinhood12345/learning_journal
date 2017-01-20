@@ -4,6 +4,8 @@ from pyramid.view import view_config
 from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
+from ..security import check_credentials
+from pyramid.security import remember, forget
 
 from pyramid.httpexceptions import HTTPFound
 
@@ -36,7 +38,7 @@ def about_page(request):
     return {}
 
 
-@view_config(route_name='update', renderer='../templates/update_template.jinja2')
+@view_config(route_name='update', renderer='../templates/update_template.jinja2', permission='change')
 def update_page(request):
     """Handles rendering for client request for update pages."""
     the_id = request.matchdict["id"]
@@ -56,7 +58,7 @@ def update_page(request):
     return {"entry": entry}
 
 
-@view_config(route_name='create', renderer='../templates/new_post_template.jinja2')
+@view_config(route_name='create', renderer='../templates/new_post_template.jinja2', permission='change')
 def new_post_page(request):
     """Handles rendering for client request for new post page."""
     if request.method == "POST":
@@ -72,6 +74,28 @@ def new_post_page(request):
         return HTTPFound(request.route_url("list"))
 
     return {}
+
+
+@view_config(route_name='login', renderer='../templates/login.jinja2')
+def login_view(request):
+    """Authenticate the incoming user."""
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        if check_credentials(username, password):
+            auth_head = remember(request, username)
+            return HTTPFound(
+                request.route_url("list"),
+                headers=auth_head
+            )
+    return {}
+
+
+@view_config(route_name='logout')
+def logout_view(request):
+    """Remove authentication from the user."""
+    auth_head = forget(request)
+    return HTTPFound(request.route_url("list"), headers=auth_head)
 
 
 db_err_msg = """\
