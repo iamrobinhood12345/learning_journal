@@ -12,8 +12,14 @@ createdb \<dbname>
 
 Export database environment variable:
 
-```
+```bash
 export DATABASE_URL="\<dbname>"
+```
+
+Fill database:
+
+```bash
+initialize_db development.ini
 ```
 
 ## Tox
