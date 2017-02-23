@@ -1,0 +1,65 @@
+{% extends "layout.jinja2" %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <title>Learning Journal</title>
+
+</head>
+
+<body>
+{% block content %}
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="site-heading">
+                        <h1>Learning Journal</h1>
+                        <hr class="small">
+                        <span class="subheading">401d5: Python</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                {% for entry in ENTRIES %}
+                    <div class="post-preview">
+                        <a href="post.html">
+                            <h2 class="post-title"><a href="/journal/{{ entry['id'] }}">
+                                {{ entry['title'] }}
+                            </h2>
+                            <h3 class="post-subtitle">
+                                {{ entry['title1'] }}
+                            </h3>
+                        </a>
+                        <p class="post-meta">Posted by <a href="#">Ben Shields</a> {{ entry['creation_date'] }}</p>
+                    </div>
+                     <hr>
+                {% endfor %}
+                <!-- Pager -->
+                <ul class="pager">
+                    <li class="next">
+                        <a href="#">Older Posts &rarr;</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+{% endblock %}
+</body>
+
+</html>

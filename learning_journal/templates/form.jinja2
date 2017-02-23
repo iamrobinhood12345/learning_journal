@@ -1,9 +1,11 @@
+{% extends "layout.jinja2" %}
 <!DOCTYPE html>
 <html>
 <head>
     <title></title>
 </head>
 <body>
+{% block content %}
 <form method="POST">
     <p>
         <label for="name">Name</label>
@@ -15,5 +17,6 @@
     </p>
     <input type="submit" value="Submit" />
 </form>
+{% endblock %}
 </body>
 </html>

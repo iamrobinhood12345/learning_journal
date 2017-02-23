@@ -8,6 +8,7 @@ from pyramid import testing
 
 from learning_journal.models import MyModel, get_tm_session
 from learning_journal.models.meta import Base
+import passlib
 
 
 TEST_ENTRIES = [
@@ -86,77 +87,77 @@ def test_new_models_are_added(db_session, add_models):
     assert len(query) == len(TEST_ENTRIES)
 
 
-def test_index_page_returns_empty_when_empty(dummy_request):
-    """Test that the list view returns no objects in the expenses iterable."""
-    from learning_journal.views.default import index_page
-    result = index_page(dummy_request)
+def test_home_view_returns_empty_when_empty(dummy_request):
+    """Test that the home view returns no objects in the expenses iterable."""
+    from learning_journal.views.default import home_view
+    result = home_view(dummy_request)
     assert len(result["ENTRIES"]) == 0
 
 
-def test_index_page_returns_objects_when_exist(dummy_request, add_models):
-    """Test that the list view does return objects when the DB is populated."""
-    from learning_journal.views.default import index_page
-    result = index_page(dummy_request)
+def test_home_view_returns_objects_when_exist(dummy_request, add_models):
+    """Test that the home view does return objects when the DB is populated."""
+    from learning_journal.views.default import home_view
+    result = home_view(dummy_request)
     assert len(result["ENTRIES"]) == len(TEST_ENTRIES)
 
 
-def test_post_page_returns_empty_when_empty(dummy_request):
+def test_post_view_returns_empty_when_empty(dummy_request):
     """Test that the post view returns no objects when database empty."""
-    from learning_journal.views.default import post_page
+    from learning_journal.views.default import post_view
     req = dummy_request
     req.matchdict = {"id": "1"}
-    result = post_page(req)
+    result = post_view(req)
     assert result["entry"] is None
 
 
-def test_post_page_returns_correct_number_of_objects_when_exist(dummy_request, add_models):
+def test_post_view_returns_correct_number_of_objects_when_exist(dummy_request, add_models):
     """Test that the post view does return objects when the DB is populated."""
-    from learning_journal.views.default import post_page
+    from learning_journal.views.default import post_view
     req = dummy_request
     req.matchdict = {"id": "1"}
-    result = post_page(req)
+    result = post_view(req)
     assert len(result) == 1
 
 
-def test_post_page_returns_correct_object_when_exist(dummy_request, add_models):
+def test_post_view_returns_correct_object_when_exist(dummy_request, add_models):
     """Test that the post view returns correct objects when the DB is populated."""
-    from learning_journal.views.default import post_page
+    from learning_journal.views.default import post_view
     req = dummy_request
     req.matchdict = {"id": "1"}
-    result = post_page(req)
+    result = post_view(req)
     assert result["entry"].title == TEST_ENTRIES[0]["title"]
 
 
-def test_update_page_returns_empty_when_empty(dummy_request):
+def test_update_view_returns_empty_when_empty(dummy_request):
     """Test that the update view returns no objects when database empty."""
-    from learning_journal.views.default import update_page
+    from learning_journal.views.default import update_view
     req = dummy_request
     req.matchdict = {"id": "2"}
-    result = update_page(req)
+    result = update_view(req)
     assert result["entry"] is None
 
 
-def test_update_page_returns_correct_number_of_objects_when_exist(dummy_request, add_models):
+def test_update_view_returns_correct_number_of_objects_when_exist(dummy_request, add_models):
     """Test that the update view does return objects when the DB is populated."""
-    from learning_journal.views.default import update_page
+    from learning_journal.views.default import update_view
     req = dummy_request
     req.matchdict = {"id": "2"}
-    result = update_page(req)
+    result = update_view(req)
     assert len(result) == 1
 
 
-def test_update_page_returns_correct_objects_when_exist(dummy_request, add_models):
+def test_update_view_returns_correct_objects_when_exist(dummy_request, add_models):
     """Test that the update view does return objects when the DB is populated."""
-    from learning_journal.views.default import update_page
+    from learning_journal.views.default import update_view
     req = dummy_request
     req.matchdict = {"id": "2"}
-    result = update_page(req)
+    result = update_view(req)
     assert result["entry"].title == TEST_ENTRIES[1]["title"]
 
 
-def test_update_page_edits_db_entry(dummy_request, add_models):
+def test_update_view_edits_db_entry(dummy_request, add_models):
     """Test that the update view edits entries in the database."""
-    from learning_journal.views.default import update_page
+    from learning_journal.views.default import update_view
     req = dummy_request
     req.matchdict = {"id": "3"}
     req.method = "POST"
@@ -165,15 +166,15 @@ def test_update_page_edits_db_entry(dummy_request, add_models):
     req.POST["creation_date"] = "a new creation date"
     req.POST["body"] = "a new body"
     try:
-        update_page(req)
+        update_view(req)
     except:
         new_title = dummy_request.dbsession.query(MyModel).get(3).title
         assert new_title == "a new post"
 
 
-def test_new_post_page_adds_db_entry(dummy_request, add_models):
+def test_new_post_view_adds_db_entry(dummy_request, add_models):
     """Test that the new post view adds entries to the database."""
-    from learning_journal.views.default import new_post_page
+    from learning_journal.views.default import new_post_view
     row_count_before_post = dummy_request.dbsession.query(MyModel).count()
     req = dummy_request
     req.method = "POST"
@@ -182,7 +183,7 @@ def test_new_post_page_adds_db_entry(dummy_request, add_models):
     req.POST["creation_date"] = "a new creation date"
     req.POST["body"] = "a new body"
     try:
-        new_post_page(req)
+        new_post_view(req)
     except:
         row_count_after_post = dummy_request.dbsession.query(MyModel).count()
         assert row_count_after_post == row_count_before_post + 1
@@ -230,79 +231,79 @@ def fill_the_db(testapp):
             dbsession.add(model)
 
 
-def test_index_page_renders(testapp):
-    """The home page has an h1 in the html."""
+def test_home_view_renders(testapp):
+    """The home view has an h1 in the html."""
     response = testapp.get('/', status=200)
     html = response.html
     assert len(html.find_all("h1")) == 1
 
 
-def test_index_page_with_data_has_entries(testapp, fill_the_db):
-    """When there's data in the database, the index page has entries."""
+def test_home_view_with_data_has_entries(testapp, fill_the_db):
+    """When there's data in the database, the home view has entries."""
     response = testapp.get('/', status=200)
     html = response.html
     assert len(html.find_all("h2")) == len(TEST_ENTRIES)
 
 
-def test_post_page_renders(testapp):
-    """The post page has an h1 in the html."""
+def test_post_view_renders(testapp):
+    """The post view has an h1 in the html."""
     response = testapp.get('/journal/1', status=200)
     html = response.html
     assert len(html.find_all("h1")) == 1
 
 
-def test_post_page_with_data_has_correct_entry(testapp, fill_the_db):
-    """When there's data in the database,the post page has an entry."""
+def test_post_view_with_data_has_correct_entry(testapp, fill_the_db):
+    """When there's data in the database,the post view has an entry."""
     response = testapp.get('/journal/1', status=200)
     html = response.html
     assert TEST_ENTRIES[0]["title"] in str(html)
 
 
-def test_update_page_renders(testapp):
-    """The post page has an h1 in the html."""
+def test_update_view_renders(testapp):
+    """The post view has an h1 in the html."""
     response = testapp.get('/journal/2/edit-entry', status=200)
     html = response.html
     assert len(html.find_all("h1")) == 1
 
 
-def test_update_page_with_data_has_correct_entry(testapp, fill_the_db):
-    """When there's data in the database,the post page has an entry."""
+def test_update_view_with_data_has_correct_entry(testapp, fill_the_db):
+    """When there's data in the database,the post view has an entry."""
     response = testapp.get('/journal/2', status=200)
     html = response.html
     assert TEST_ENTRIES[1]["title"] in str(html)
 
 
-def test_new_post_page_renders(testapp):
-    """The new post page has an h1 in the html."""
+def test_new_post_view_renders(testapp):
+    """The new post view has an h1 in the html."""
     response = testapp.get('/journal/new-entry', status=200)
     html = response.html
     assert len(html.find_all("h1")) == 1
 
 
-def test_new_post_page_content(testapp):
-    """Test new post page has something specific to the page."""
+def test_new_post_view_content(testapp):
+    """Test new post view has something specific to the view."""
     response = testapp.get('/journal/new-entry', status=200)
     html = response.html
     assert "Write a new post here!" in str(html)
 
 
-def test_about_page_renders(testapp):
-    """The about page has an h1 in the html."""
+def test_about_view_renders(testapp):
+    """The about view has an h1 in the html."""
     response = testapp.get('/about', status=200)
     html = response.html
     assert len(html.find_all("h1")) == 1
 
 
-def test_about_page_content(testapp):
-    """Test new post page has something specific to the page."""
+def test_about_view_content(testapp):
+    """Test new post view has something specific to the view."""
     response = testapp.get('/about', status=200)
     html = response.html
     print(str(html))
     assert "About Me" in str(html)
 
 
-def test_new_post_page_redirects(testapp):
-    """Test that a post request on new post page redirects to home."""
+def test_new_post_view_redirects(testapp):
+    """Test that a post request on new post view redirects to home."""
     post_params = {
         'title': 'Some Title.',
         'title1': 'Another Title.',
@@ -315,8 +316,8 @@ def test_new_post_page_redirects(testapp):
     assert len(full_response.html.find_all("h2")) == 1
 
 
-def test_update_page_redirects(testapp, fill_the_db):
-    """Test that a post request on update page redirects to home."""
+def test_update_view_redirects(testapp, fill_the_db):
+    """Test that a post request on update view redirects to home."""
     post_params = {
         'title': 'Some Title.',
         'title1': 'Another Title.',

@@ -152,3 +152,19 @@ p {
     margin-top: 20px;
   }
 }
+
+a {
+    background-color: white;
+}
+
+h {
+    background-color: white;
+}
+
+.site-heading {
+    background-color: blue;
+}
+
+* {
+    border: 1px solid blue;
+}
