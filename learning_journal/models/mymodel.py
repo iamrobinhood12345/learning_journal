@@ -3,7 +3,7 @@ from sqlalchemy import (
     Index,
     Integer,
     Unicode,
-    Date
+    Date,
 )
 
 from .meta import Base
