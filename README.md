@@ -2,7 +2,7 @@
 
 A learning journal built in python on the Pyramid framework.
 
-## setup
+## Setup
 
 Create a postgres database:
 
@@ -16,7 +16,7 @@ Export database environment variable:
 export DATABASE_URL="\<dbname>"
 ```
 
-## tox
+## Tox
 
     ================================== test session starts ===================================
     platform darwin -- Python 2.7.13, pytest-3.0.5, py-1.4.32, pluggy-0.4.0
