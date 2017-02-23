@@ -20,7 +20,7 @@ def index_page(request):
 
 
 @view_config(route_name='detail', renderer='../templates/post_template.jinja2')
-def post_page(request):
+def entry_page(request):
     """Handles rendering for client request for post pages."""
     the_id = request.matchdict["id"]
     try:
