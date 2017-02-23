@@ -1,5 +1,15 @@
 # learning_journal
 
+A learning journal built in python on the Pyramid framework.
+
+Create a postgres database:
+
+createdb <dbname>
+
+Export database environment variable:
+
+export DATABASE_URL="<dbname>"
+
     ================================== test session starts ===================================
     platform darwin -- Python 2.7.13, pytest-3.0.5, py-1.4.32, pluggy-0.4.0
     rootdir: /Users/ben/401/pyramid/learning_journal, inifile: pytest.ini
