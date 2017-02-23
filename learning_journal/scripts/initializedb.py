@@ -47,9 +47,9 @@ def main(argv=sys.argv):
 
     session_factory = get_session_factory(engine)
 
-    # with transaction.manager:
-    #     dbsession = get_tm_session(session_factory, transaction.manager)
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
 
-    #     for each in ENTRIES:
-    #         model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
-    #         dbsession.add(model)
+        for each in ENTRIES:
+            model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
+            dbsession.add(model)
