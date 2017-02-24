@@ -9,10 +9,12 @@ from pyramid.security import remember, forget
 
 from pyramid.httpexceptions import HTTPFound
 
+import datetime
 
-@view_config(route_name='home', renderer='../templates/home.jinja2')
-def home_view(request):
-    """Handle rendering for client request for the index page."""
+
+@view_config(route_name='home', renderer='../templates/list.jinja2')
+def index_page(request):
+    """Handles rendering for client request for the index page."""
     try:
         query = request.dbsession.query(MyModel)
         entries = query.all()
@@ -21,9 +23,9 @@ def home_view(request):
     return {"ENTRIES": entries}
 
 
-@view_config(route_name='post', renderer='../templates/post.jinja2')
-def post_view(request):
-    """Handle rendering for client request for post pages."""
+@view_config(route_name='entry', renderer='../templates/post_template.jinja2')
+def entry_page(request):
+    """Handles rendering for client request for post pages."""
     the_id = request.matchdict["id"]
     try:
         entry = request.dbsession.query(MyModel).get(the_id)
@@ -32,24 +34,23 @@ def post_view(request):
     return {"entry": entry}
 
 
-@view_config(route_name='about', renderer='../templates/about.jinja2')
-def about_view(request):
-    """Handle rendering for client request for about page."""
+@view_config(route_name='about', renderer='../templates/about_template.jinja2')
+def about_page(request):
+    """Handles rendering for client request for about page."""
     return {}
 
 
-@view_config(route_name='update', renderer='../templates/update_post.jinja2', permission='change')
-def update_post_view(request):
-    """Handle rendering for client request for update pages."""
+@view_config(route_name='update', renderer='../templates/update_template.jinja2')
+def update_page(request):
+    """Handles rendering for client request for update pages."""
     the_id = request.matchdict["id"]
     try:
         entry = request.dbsession.query(MyModel).get(the_id)
         if request.method == "POST":
             entry.title = request.POST["title"]
             entry.title1 = request.POST["title1"]
-            entry.creation_date = request.POST["creation_date"]
             entry.body = request.POST["body"]
-
+            entry.creation_date = datetime.date.today()
             request.dbsession.flush()
             return HTTPFound(request.route_url("list"))
 
@@ -58,13 +59,13 @@ def update_post_view(request):
     return {"entry": entry}
 
 
-@view_config(route_name='create', renderer='../templates/new_post.jinja2', permission='change')
+@view_config(route_name='create', renderer='../templates/new_post_template.jinja2')
 def new_post_page(request):
-    """Handle rendering for client request for new post page."""
+    """Handles rendering for client request for new post page."""
     if request.method == "POST":
         new_title = request.POST["title"]
         new_title1 = request.POST["title1"]
-        new_creation_date = request.POST["creation_date"]
+        new_creation_date = datetime.date.today()
         new_body = request.POST["body"]
 
         model = MyModel(title=new_title, title1=new_title1, creation_date=new_creation_date, body=new_body)
