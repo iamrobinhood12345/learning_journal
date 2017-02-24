@@ -29,7 +29,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     settings = {
-        'sqlalchemy.url': 'sqlite:///:memory:'}  # points to an in-memory database.
+        'sqlalchemy.url': 'postgres://ben@localhost:5432/test_learning_journal1'}  # points to an in-memory database.
     config = testing.setUp(settings=settings)
     config.include('learning_journal.models')
 
@@ -50,6 +50,7 @@ def db_session(configuration, request):
     SessionFactory = configuration.registry['dbsession_factory']
     session = SessionFactory()
     engine = session.bind
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     def teardown():
