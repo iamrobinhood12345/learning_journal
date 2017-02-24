@@ -1,0 +1,71 @@
+{% extends "layout.jinja2" %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    <title>Learning Journal - Create a New Post</title>
+
+
+</head>
+
+<body>
+{% block content %}
+
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="page-heading">
+                        <h1>Log In</h1>
+                        <hr class="small">
+                        <span class="subheading">Please enter your username and password</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p></p>
+                <form method="post" name="sentMessage" id="login" novalidate>
+                   <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group controls">
+                            <label>Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="username" id="username">
+                            <p class="help-block text-danger"></p>
+                        </div>
+                    </div>
+                    <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group controls">
+                            <label>Password</label>
+                            <input type="text" name="password" class="form-control" placeholder="password" id="password">
+                            <p class="help-block text-danger"></p>
+                        </div>
+                    </div>
+                    <br>
+                    <div id="success"></div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <button type="submit" class="btn btn-default">Log In</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+{% endblock %}
+
+</body>
+
+</html>

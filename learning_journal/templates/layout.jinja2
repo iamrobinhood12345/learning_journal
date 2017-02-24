@@ -41,9 +41,18 @@
                     <li>
                         <a href="{{ request.route_url('about') }}">About</a>
                     </li>
+                    {% if request.authenticated_userid %}
                     <li>
                         <a href="{{ request.route_url('create') }}">New Post</a>
                     </li>
+                    <li>
+                        <a href="logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="login">Login</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
             <!-- /.navbar-collapse -->

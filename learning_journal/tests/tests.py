@@ -32,6 +32,7 @@ def configuration(request):
         'sqlalchemy.url': 'postgres://ben@localhost:5432/test_learning_journal1'}  # points to an in-memory database.
     config = testing.setUp(settings=settings)
     config.include('learning_journal.models')
+    config.include('learning_journal.routes')
 
     def teardown():
         testing.tearDown()
@@ -78,6 +79,15 @@ def add_models(dummy_request):
     for each in TEST_ENTRIES:
         model = MyModel(title=each["title"], title1=each["title1"], creation_date=each["creation_date"], body=each["body"])
         dummy_request.dbsession.add(model)
+
+
+# @pytest.fixture
+# def set_auth_credentials():
+#     """Make a username/password for tests."""
+#     import os
+#     from passlib.apps import custom_app_context as pwd_context
+#     os.environ["AUTH_USERNAME"] = "testname"
+#     os.environ["AUTH_PASSWORD"] = pwd_context.hash("testpassword")
 
 
 # ======== UNIT TESTS ==========
@@ -188,6 +198,24 @@ def test_new_post_page_adds_db_entry(dummy_request, add_models):
     except:
         row_count_after_post = dummy_request.dbsession.query(MyModel).count()
         assert row_count_after_post == row_count_before_post + 1
+
+
+def test_authorization_correct_password(set_auth_credentials):
+    """Test authentication with correct username and password."""
+    from learning_journal.security import check_credentials
+    assert check_credentials("testname", "testpassword")
+
+
+def test_authorization_incorrect_password(set_auth_credentials):
+    """Test authentication with incorrect password."""
+    from learning_journal.security import check_credentials
+    assert not check_credentials("testname", "wrongpassword")
+
+
+def test_authorization_incorrect_username(set_auth_credentials):
+    """Test authentication with incorrect username."""
+    from learning_journal.security import check_credentials
+    assert not check_credentials("wrongname", "testpassword")
 
 
 # ======== FUNCTIONAL TESTS ===========
@@ -310,7 +338,6 @@ def test_about_page_content(testapp):
     """Test new post page has something specific to the page."""
     response = testapp.get('/about', status=200)
     html = response.html
-    print(str(html))
     assert "About Me" in str(html)
 
 
@@ -327,6 +354,21 @@ def test_new_post_page_redirects(testapp):
     assert len(full_response.html.find_all("h2")) == 1
 
 
+def test_login_page_renders(testapp):
+    """Test login page has something specific to the login page."""
+    response = testapp.get('/login', status=200)
+    html = response.html
+    assert len(html.find_all('form')) == 1
+
+
+def test_login_page_content(testapp):
+    """Test login page has something specific to the login page."""
+    response = testapp.get('/login', status=200)
+    html = response.html
+    assert 'Log In' in str(html)
+    assert len(html.find_all('form')) == 1
+
+
 def test_update_page_redirects(testapp, fill_the_db):
     """Test that a post request on update page redirects to home."""
     post_params = {
@@ -336,7 +378,12 @@ def test_update_page_redirects(testapp, fill_the_db):
     }
     response = testapp.post('/journal/2/edit-entry', post_params, status=302)
     full_response = response.follow()
-    print(str(full_response.html))
     assert response.text[0:3] == '302'
     assert 'Some Title.' in str(full_response.html)
     assert 'Another Title.' in str(full_response.html)
+
+
+def test_logout_page_logs_out_user(testapp):
+    """Test authentication token exists."""
+    testapp.get('/logout')
+    assert "auth_tkt" not in testapp.cookies
