@@ -8,7 +8,7 @@
     <meta name="author" content="Pylons Project">
     <link rel="shortcut icon" href="{{request.static_url('learning_journal:static/pyramid-16x16.png')}}">
 
-    <title>Alchemy Scaffold for The Pyramid Web Framework</title>
+    <title>Learning Journal</title>
 
     <!-- Bootstrap core CSS -->
     <link href="//oss.maxcdn.com/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
@@ -24,6 +24,32 @@
   </head>
 
   <body>
+      <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <a class="navbar-brand" href="index.html">Learning Journal</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="{{ request.route_url('list') }}">Home</a>
+                    </li>
+                    <li>
+                        <a href="{{ request.route_url('about') }}">About</a>
+                    </li>
+                    <li>
+                        <a href="{{ request.route_url('create') }}">New Post</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
 
     <div class="starter-template">
       <div class="container">
@@ -50,7 +76,7 @@
         </div>
         <div class="row">
           <div class="copyright">
-            Copyright &copy; Pylons Project
+            Copyright &copy; Ben Shields
           </div>
         </div>
       </div>

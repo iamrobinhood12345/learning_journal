@@ -9,6 +9,8 @@ from pyramid.security import remember, forget
 
 from pyramid.httpexceptions import HTTPFound
 
+import datetime
+
 
 @view_config(route_name='list', renderer='../templates/list.jinja2')
 def index_page(request):
@@ -22,7 +24,7 @@ def index_page(request):
 
 
 @view_config(route_name='detail', renderer='../templates/post_template.jinja2')
-def post_page(request):
+def entry_page(request):
     """Handles rendering for client request for post pages."""
     the_id = request.matchdict["id"]
     try:
@@ -47,7 +49,7 @@ def update_page(request):
         if request.method == "POST":
             entry.title = request.POST["title"]
             entry.title1 = request.POST["title1"]
-            entry.creation_date = request.POST["creation_date"]
+            entry.creation_date = datetime.date.today()
             entry.body = request.POST["body"]
 
             request.dbsession.flush()
@@ -64,7 +66,7 @@ def new_post_page(request):
     if request.method == "POST":
         new_title = request.POST["title"]
         new_title1 = request.POST["title1"]
-        new_creation_date = request.POST["creation_date"]
+        new_creation_date = datetime.date.today()
         new_body = request.POST["body"]
 
         model = MyModel(title=new_title, title1=new_title1, creation_date=new_creation_date, body=new_body)

@@ -3,6 +3,7 @@ from sqlalchemy import (
     Index,
     Integer,
     Unicode,
+    Date,
 )
 
 from .meta import Base
@@ -13,7 +14,7 @@ class MyModel(Base):
     id = Column(Integer, primary_key=True)
     title = Column(Unicode)
     title1 = Column(Unicode)
-    creation_date = Column(Unicode)
+    creation_date = Column(Date)
     body = Column(Unicode)
 
 
